@@ -46,6 +46,7 @@ public class MainController {
 	public Usuario findByUser(@PathVariable String user) {
 		return this.servicioUsuario.obtenerUsuario(user);
 	}
+	
 	/**
 	 * 
 	 * @return
@@ -67,12 +68,13 @@ public class MainController {
 	
 	/**
 	 * 
-	 * @param pedido
+	 * @param ped
+	 * @param user
 	 * @return
 	 */
 	@PostMapping("/pedido")
 	public Pedido add(@RequestBody Pedido ped){
-		return this.servicioPedido.add(ped); //Añadir usuario a pedido
+		return this.servicioPedido.add(ped);
 	}
 	
 	/**

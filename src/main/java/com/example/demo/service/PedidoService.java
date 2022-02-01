@@ -24,10 +24,7 @@ public class PedidoService {
 	@Autowired
 	private PedidoRepository repositorio;
 	@Autowired
-	private ProductoPedidoRepository repositorioLinea;
-	@Autowired
-	private ProductoService servicioProducto;
-	
+	private ProductoPedidoRepository repositorioLinea;	
 	
 	/**
 	 * Metodo para obtener todos los pedidos
@@ -39,12 +36,22 @@ public class PedidoService {
 	
 	
 	/**
-	 * Metodo para almacenar pedido en la base de datos
-	 * @param pedido EL pedido que se desea almacenar en la base de datos
-	 * @return Pedido pedido que se ha alamcenado
+	 * 
+	 * @param pedido
+	 * @return
+	 */
+	public Pedido save(Pedido pedido) {
+		return repositorio.save(pedido);
+	}
+	
+	/**
+	 * 
+	 * @param pedido
+	 * @param user
+	 * @return
 	 */
 	public Pedido add(Pedido pedido) {
-		return repositorio.save(pedido);
+		return this.save(pedido);
 	}
 	
 	/**
@@ -66,7 +73,7 @@ public class PedidoService {
 	public ProductoPedido anadirLineaPedido(long ref,ProductoPedido productoPedido) {
 		Pedido pedido = this.obtenerPedidoPorReferencia(ref);
 		pedido.addProductos(productoPedido);
-		this.add(pedido);
+		this.save(pedido);
 		return productoPedido;
 	}
 
@@ -81,7 +88,7 @@ public class PedidoService {
 		ProductoPedido productoPedido = this.repositorioLinea.getById(id);
 		lineas.remove(productoPedido);
 		this.repositorioLinea.deleteById(id);
-		this.add(pedido);
+		this.save(pedido);
 		return productoPedido;
 	}
 

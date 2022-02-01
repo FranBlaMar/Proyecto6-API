@@ -31,6 +31,7 @@ public class Pedido {
 	@JoinColumn(name="usuario_pedido")
 	private Usuario usuarioPedido;
 	
+	
 	@OneToMany (cascade=CascadeType.ALL, orphanRemoval = true)
 	private List<ProductoPedido> productos =new ArrayList<> ();
 	
