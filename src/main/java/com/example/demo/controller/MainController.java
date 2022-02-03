@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.error.LineaPedidoNotFoundException;
+import com.example.demo.error.PedidoNotFoundException;
+import com.example.demo.error.UsuarioNotFoundException;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Producto;
 import com.example.demo.model.ProductoPedido;
@@ -42,9 +45,14 @@ public class MainController {
 	 * @param user
 	 * @return
 	 */
-	@GetMapping("/login/{user}")
+	@GetMapping("/usuario/{user}")
 	public Usuario findByUser(@PathVariable String user) {
-		return this.servicioUsuario.obtenerUsuario(user);
+		Usuario resultado = this.servicioUsuario.obtenerUsuario(user);
+		if (resultado == null) {
+			throw new UsuarioNotFoundException(user);
+		} else {
+			return resultado;
+		}
 	}
 	
 	/**
@@ -63,7 +71,12 @@ public class MainController {
 	 */
 	@DeleteMapping("/pedido/{ref}")
 	public Pedido delete(@PathVariable long ref){
-		return this.servicioPedido.borrarPedido(ref);
+		Pedido resultado = this.servicioPedido.borrarPedido(ref);
+		if (resultado == null) {
+			throw new PedidoNotFoundException(ref);
+		} else {
+			return resultado;
+		}
 	}
 	
 	/**
@@ -83,10 +96,10 @@ public class MainController {
 	 * @param ref
 	 * @return
 	 */
-	/*@PutMapping("/pedido/{ref}")
+	@PutMapping("/pedido/{ref}")
 	public Pedido edit(@RequestBody Pedido pedido, @PathVariable long ref){
-		return this.servicioPedido.edit(pedido,ref);
-	}*/
+		return this.servicioPedido.editarPedido(pedido,ref);
+	}
 	
 	/**
 	 * 
@@ -95,7 +108,12 @@ public class MainController {
 	 */
 	@GetMapping("/pedido/{ref}")
 	public Pedido get(@PathVariable long ref){
-		return this.servicioPedido.obtenerPedidoPorReferencia(ref);
+		Pedido resultado = this.servicioPedido.obtenerPedidoPorReferencia(ref);
+		if (resultado == null) {
+			throw new PedidoNotFoundException(ref);
+		} else {
+			return resultado;
+		}
 	}
 	
 	/**
@@ -115,7 +133,12 @@ public class MainController {
 	 */
 	@GetMapping("/pedido/{ref}/lineaPedido")
 	public List<ProductoPedido> getLineasPedido(@PathVariable long ref){
-		return this.servicioPedido.getLineasPedido(ref);
+		List<ProductoPedido> resultado = this.servicioPedido.getLineasPedido(ref);
+		if (resultado == null) {
+			throw new PedidoNotFoundException(ref);
+		} else {
+			return resultado;
+		}
 	}
 	
 	/**
@@ -129,9 +152,15 @@ public class MainController {
 		return this.servicioPedido.anadirLineaPedido(ref, linea);
 	}
 	
+	/**
+	 * 
+	 * @param ref
+	 * @param id
+	 * @return
+	 */
 	@DeleteMapping("/pedido/{ref}/lineaPedido/{id}")
 	public ProductoPedido deleteLineaPedido(@PathVariable long ref, @PathVariable long id) {
-		return this.servicioPedido.eliminarLineaPedido(ref,id);
+		return this.servicioPedido.borrarLineaPedido(ref,id);
 	}
 	
 }

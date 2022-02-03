@@ -12,6 +12,7 @@ import com.example.demo.model.ProductoPedido;
 import com.example.demo.model.Usuario;
 import com.example.demo.repository.PedidoRepository;
 import com.example.demo.repository.ProductoPedidoRepository;
+import com.example.demo.repository.ProductoRepository;
 
 /**
  * Clase servicio de pedidos
@@ -24,6 +25,8 @@ public class PedidoService {
 	@Autowired
 	private PedidoRepository repositorio;
 	@Autowired
+	private ProductoRepository repositorioProducto;
+	@Autowired
 	private ProductoPedidoRepository repositorioLinea;	
 	
 	/**
@@ -34,16 +37,6 @@ public class PedidoService {
 		return repositorio.findAll();
 	}
 	
-	
-	/**
-	 * 
-	 * @param pedido
-	 * @return
-	 */
-	public Pedido save(Pedido pedido) {
-		return repositorio.save(pedido);
-	}
-	
 	/**
 	 * 
 	 * @param pedido
@@ -51,7 +44,8 @@ public class PedidoService {
 	 * @return
 	 */
 	public Pedido add(Pedido pedido) {
-		return this.save(pedido);
+		this.repositorio.save(pedido);
+		return pedido;
 	}
 	
 	/**
@@ -60,36 +54,23 @@ public class PedidoService {
 	 * @return Lista de lineas de pedido 
 	 */
 	public List<ProductoPedido> getLineasPedido (long ref) {
-		return this.obtenerPedidoPorReferencia(ref).getProductos();
+		List<ProductoPedido> resultado;
+		if(this.obtenerPedidoPorReferencia(ref) == null) {
+			resultado = null;
+		}
+		else {
+			resultado = this.obtenerPedidoPorReferencia(ref).getProductos();
+		}
+		return resultado;
 	}
 	
-	
 	/**
-	 * Metodo para añadir la linea de pedido a un pedido
-	 * @param pedido Pedido al que vamos a añadirle las lineas
-	 * @param productoPedido La linea que queremos añadir
-	 * @return Linea de pedido añadida
+	 * 
+	 * @param id
+	 * @return
 	 */
-	public ProductoPedido anadirLineaPedido(long ref,ProductoPedido productoPedido) {
-		Pedido pedido = this.obtenerPedidoPorReferencia(ref);
-		pedido.addProductos(productoPedido);
-		this.save(pedido);
-		return productoPedido;
-	}
-
-	/**
-	 * Metodo para eliminar una linea de un pedido en la base de datos
-	 * @param id Id de la linea de pedido
-	 * @return La linea de pedido añadida
-	 */
-	public ProductoPedido eliminarLineaPedido(long ref, long id) {
-		Pedido pedido = this.obtenerPedidoPorReferencia(ref);
-		List <ProductoPedido> lineas = pedido.getProductos();
-		ProductoPedido productoPedido = this.repositorioLinea.getById(id);
-		lineas.remove(productoPedido);
-		this.repositorioLinea.deleteById(id);
-		this.save(pedido);
-		return productoPedido;
+	public ProductoPedido getLineaPedido (long id) {
+		return this.repositorioLinea.findById(id).orElse(null);
 	}
 
 	/**
@@ -98,7 +79,7 @@ public class PedidoService {
 	 */
 	 
 	public Pedido borrarPedido(long refe) {
-		Pedido p = this.repositorio.getById(refe);
+		Pedido p = this.repositorio.findById(refe).get();
 		this.repositorio.deleteById(refe);
 		return p;
 	}
@@ -110,6 +91,82 @@ public class PedidoService {
 	 */
 	public Pedido obtenerPedidoPorReferencia(long referencia){
 		return repositorio.findById(referencia).orElse(null);
+	}
+	
+	/**
+	 * 
+	 * @param pedido
+	 * @param referencia
+	 * @return
+	 */
+	public Pedido editarPedido(Pedido pedido, Long referencia) {
+		if (this.repositorio.findById(referencia).orElse(null) == null) {
+			this.add(pedido);
+		}
+		else {
+			pedido.setReferencia(referencia);
+			this.add(pedido);
+		}
+		return pedido;
+	}
+	
+	/**
+	 * 
+	 * @param ref
+	 * @param linea
+	 * @return
+	 */
+	public ProductoPedido anadirLineaPedido(long ref, ProductoPedido linea) {
+		ProductoPedido resultado = linea;
+		if(this.obtenerPedidoPorReferencia(ref) == null) {
+			resultado = null;
+		}
+		else {
+			Pedido pedido = obtenerPedidoPorReferencia(ref);
+			long idProducto = linea.getProducto().getId();
+			linea.setProducto(this.repositorioProducto.findById(idProducto).get());
+			pedido.addProductos(linea);
+			pedido.setPrecioTotal(this.calcularPrecioTotal(linea, ref));
+			this.add(pedido);
+		}
+		return resultado;
+	}
+	
+	/**
+	 * 
+	 * @param linea
+	 * @param ref
+	 * @return
+	 */
+	public double calcularPrecioTotal(ProductoPedido linea, long ref) {
+		double precioTotal = this.obtenerPedidoPorReferencia(ref).getPrecioTotal();
+		double nuevaCantidad = linea.getProducto().getPrecio() * linea.getCantidad();
+		precioTotal += nuevaCantidad;
+		return precioTotal;
+	}
+	
+	
+	/**
+	 * 
+	 * @param ref
+	 * @param id
+	 * @return
+	 */
+	public ProductoPedido borrarLineaPedido(Long ref, Long id) {
+		ProductoPedido linea = getLineaPedido(id);
+		Pedido pedido = obtenerPedidoPorReferencia(ref);
+		List<ProductoPedido> lineasPedido = pedido.getProductos();
+		for (ProductoPedido item : lineasPedido) {
+			if (item.getIdLinea().equals(id)) {
+				double cantidadARestar = item.getProducto().getPrecio() * item.getCantidad();
+				pedido.setPrecioTotal(pedido.getPrecioTotal() - cantidadARestar);
+				lineasPedido.remove(item);
+			}
+		}
+		pedido.setProductos(lineasPedido);
+		add(pedido);
+		this.repositorioLinea.delete(linea);
+		return linea;
 	}
 
 }
