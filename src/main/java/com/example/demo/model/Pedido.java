@@ -11,8 +11,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +30,10 @@ public class Pedido {
 	
 	@ManyToOne
 	@JoinColumn(name="usuario_pedido")
-	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private Usuario usuarioPedido;
 	
 	
 	@OneToMany (cascade=CascadeType.ALL, orphanRemoval = true)
-	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private List<ProductoPedido> productos =new ArrayList<> ();
 	
 	@Column(name = "fechaPedido", nullable = false)

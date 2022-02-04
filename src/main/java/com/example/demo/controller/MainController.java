@@ -50,9 +50,8 @@ public class MainController {
 		Usuario resultado = this.servicioUsuario.obtenerUsuario(user);
 		if (resultado == null) {
 			throw new UsuarioNotFoundException(user);
-		} else {
-			return resultado;
 		}
+		return resultado;
 	}
 	
 	/**
@@ -71,12 +70,12 @@ public class MainController {
 	 */
 	@DeleteMapping("/pedido/{ref}")
 	public Pedido delete(@PathVariable long ref){
-		Pedido resultado = this.servicioPedido.borrarPedido(ref);
-		if (resultado == null) {
+		Pedido p = this.servicioPedido.obtenerPedidoPorReferencia(ref);
+		if (p == null) {
 			throw new PedidoNotFoundException(ref);
-		} else {
-			return resultado;
 		}
+		Pedido resultado = this.servicioPedido.borrarPedido(ref);
+		return resultado;
 	}
 	
 	/**
@@ -111,9 +110,8 @@ public class MainController {
 		Pedido resultado = this.servicioPedido.obtenerPedidoPorReferencia(ref);
 		if (resultado == null) {
 			throw new PedidoNotFoundException(ref);
-		} else {
-			return resultado;
 		}
+		return resultado;
 	}
 	
 	/**
@@ -136,9 +134,27 @@ public class MainController {
 		List<ProductoPedido> resultado = this.servicioPedido.getLineasPedido(ref);
 		if (resultado == null) {
 			throw new PedidoNotFoundException(ref);
-		} else {
-			return resultado;
 		}
+		return resultado;
+	}
+	
+	/**
+	 * 
+	 * @param ref
+	 * @param id
+	 * @return
+	 */
+	@GetMapping("/pedido/{ref}/lineaPedido/{id}")
+	public ProductoPedido getLineaPedido(@PathVariable long ref, @PathVariable long id){
+		Pedido pedido = this.servicioPedido.obtenerPedidoPorReferencia(ref);
+		if (pedido == null) {
+			throw new PedidoNotFoundException(ref);
+		}
+		ProductoPedido resultado = this.servicioPedido.getLineaPedido(ref,id);
+		if (resultado == null) {
+			throw new PedidoNotFoundException(ref);
+		}
+		return resultado;
 	}
 	
 	/**
@@ -160,7 +176,32 @@ public class MainController {
 	 */
 	@DeleteMapping("/pedido/{ref}/lineaPedido/{id}")
 	public ProductoPedido deleteLineaPedido(@PathVariable long ref, @PathVariable long id) {
-		return this.servicioPedido.borrarLineaPedido(ref,id);
+		Pedido pedido = this.servicioPedido.obtenerPedidoPorReferencia(ref);
+		if (pedido == null) {
+			throw new PedidoNotFoundException(ref);
+
+		}
+		ProductoPedido resultado = this.servicioPedido.getLineaPedido(ref, id);
+		if (resultado == null) {
+			throw new LineaPedidoNotFoundException(id);
+		}
+		return this.servicioPedido.borrarLineaPedido(ref, id);
+	}
+	
+	/**
+	 * 
+	 * @param ref
+	 * @param linea
+	 * @param id
+	 * @return
+	 */
+	@PutMapping("/pedido/{ref}/lineaPedido/{id}")
+	public ProductoPedido editLineaPedido(@PathVariable long ref, @RequestBody ProductoPedido linea, @PathVariable long id) {
+		Pedido pedido = this.servicioPedido.obtenerPedidoPorReferencia(ref);
+		if (pedido == null) {
+			throw new PedidoNotFoundException(ref);
+		}
+		return this.servicioPedido.editarLineaPedido(ref, linea, id);
 	}
 	
 }

@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 
 
 import com.example.demo.model.Pedido;
-import com.example.demo.model.Producto;
 import com.example.demo.model.ProductoPedido;
-import com.example.demo.model.Usuario;
 import com.example.demo.repository.PedidoRepository;
 import com.example.demo.repository.ProductoPedidoRepository;
 import com.example.demo.repository.ProductoRepository;
@@ -69,8 +67,15 @@ public class PedidoService {
 	 * @param id
 	 * @return
 	 */
-	public ProductoPedido getLineaPedido (long id) {
-		return this.repositorioLinea.findById(id).orElse(null);
+	public ProductoPedido getLineaPedido (long ref, long id) {
+		Pedido pedido = obtenerPedidoPorReferencia(ref);
+		ProductoPedido resultado = null;
+		for(ProductoPedido linea : pedido.getProductos()) {
+			if (linea.getIdLinea().equals(id)) {
+				resultado = linea;
+			}
+		}
+		return resultado;
 	}
 
 	/**
@@ -126,7 +131,7 @@ public class PedidoService {
 			long idProducto = linea.getProducto().getId();
 			linea.setProducto(this.repositorioProducto.findById(idProducto).get());
 			pedido.addProductos(linea);
-			pedido.setPrecioTotal(this.calcularPrecioTotal(linea, ref));
+			pedido.setPrecioTotal(this.calcularPrecioTotal(pedido));
 			this.add(pedido);
 		}
 		return resultado;
@@ -138,10 +143,11 @@ public class PedidoService {
 	 * @param ref
 	 * @return
 	 */
-	public double calcularPrecioTotal(ProductoPedido linea, long ref) {
-		double precioTotal = this.obtenerPedidoPorReferencia(ref).getPrecioTotal();
-		double nuevaCantidad = linea.getProducto().getPrecio() * linea.getCantidad();
-		precioTotal += nuevaCantidad;
+	public double calcularPrecioTotal(Pedido pedido) {
+		double precioTotal = pedido.getPrecioTotal();
+		for(ProductoPedido linea: pedido.getProductos()) {
+			precioTotal += linea.getCantidad() * linea.getProducto().getPrecio();
+		}
 		return precioTotal;
 	}
 	
@@ -153,19 +159,40 @@ public class PedidoService {
 	 * @return
 	 */
 	public ProductoPedido borrarLineaPedido(Long ref, Long id) {
-		ProductoPedido linea = getLineaPedido(id);
+		ProductoPedido linea = getLineaPedido(ref,id);
 		Pedido pedido = obtenerPedidoPorReferencia(ref);
 		List<ProductoPedido> lineasPedido = pedido.getProductos();
 		for (ProductoPedido item : lineasPedido) {
 			if (item.getIdLinea().equals(id)) {
 				double cantidadARestar = item.getProducto().getPrecio() * item.getCantidad();
 				pedido.setPrecioTotal(pedido.getPrecioTotal() - cantidadARestar);
-				lineasPedido.remove(item);
 			}
 		}
+		lineasPedido.remove(linea);
 		pedido.setProductos(lineasPedido);
 		add(pedido);
 		this.repositorioLinea.delete(linea);
+		return linea;
+	}
+	
+	/**
+	 * 
+	 * @param ref
+	 * @param linea
+	 * @param id
+	 * @return
+	 */
+	public ProductoPedido editarLineaPedido (long ref, ProductoPedido linea, long id) {
+		long idProducto = linea.getProducto().getId();
+		linea.setProducto(this.repositorioProducto.findById(idProducto).get());
+		linea.setIdLinea(id);
+		
+		Pedido pedido = obtenerPedidoPorReferencia(ref);
+		pedido.getProductos().remove(linea);
+		pedido.getProductos().add(linea);
+		pedido.setPrecioTotal(calcularPrecioTotal(pedido));
+		add(pedido);
+		this.repositorioLinea.save(linea);
 		return linea;
 	}
 
