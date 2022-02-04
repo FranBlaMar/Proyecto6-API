@@ -6,7 +6,11 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import org.springframework.http.HttpStatus;
 
 
-
+/**
+ * Clase que controla las excepciones
+ * @author Usuario
+ *
+ */
 public class Errores {
 	
 	private HttpStatus estadoPeticion;

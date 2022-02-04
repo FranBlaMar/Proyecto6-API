@@ -3,6 +3,11 @@ package com.example.demo.error;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * Clase exception not found de linea pedido
+ * @author Usuario
+ *
+ */
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class LineaPedidoNotFoundException extends RuntimeException {
 	/**

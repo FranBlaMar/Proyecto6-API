@@ -23,7 +23,7 @@ import com.example.demo.service.ProductoService;
 import com.example.demo.service.UsuarioService;
 
 /**
- * 
+ * Clase controlador de la API
  * @author usuario
  *
  */
@@ -41,9 +41,9 @@ public class MainController {
 	
 	
 	/**
-	 * 
-	 * @param user
-	 * @return
+	 * Metodo que devuelve un usuario pasandole un nombre de usuario
+	 * @param user Nombre de usuario
+	 * @return Usuario con dicho nombre de usuario
 	 */
 	@GetMapping("/usuario/{user}")
 	public Usuario findByUser(@PathVariable String user) {
@@ -55,8 +55,8 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Metodo que devuelve todos los productos
+	 * @return Lista de productos
 	 */
 	@GetMapping("/producto")
 	public List<Producto> findAll(){
@@ -64,9 +64,9 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @return
+	 * Metodo que borra un pedido mediante su numero de referencia
+	 * @param ref Numero de referencia del pedido
+	 * @return El pedido borrado
 	 */
 	@DeleteMapping("/pedido/{ref}")
 	public Pedido delete(@PathVariable long ref){
@@ -79,10 +79,9 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ped
-	 * @param user
-	 * @return
+	 * Metodo para añadir un pedido
+	 * @param ped Pedido que se desea añadir
+	 * @return El pedido añadido
 	 */
 	@PostMapping("/pedido")
 	public Pedido add(@RequestBody Pedido ped){
@@ -90,10 +89,10 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param pedido
-	 * @param ref
-	 * @return
+	 * Metodo para modificar un pedido mediante su numero de referencia
+	 * @param pedido El nuevo pedido editado
+	 * @param ref El numero de referencia del pedido qeu se desea modificar
+	 * @return El pedido modificado
 	 */
 	@PutMapping("/pedido/{ref}")
 	public Pedido edit(@RequestBody Pedido pedido, @PathVariable long ref){
@@ -101,9 +100,9 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @return
+	 * Metodo para obtener un pedido mediante su numero de referencia
+	 * @param ref El numero de referencia del pedido a obtener
+	 * @return EL pedido que se ha obtenido desde el numero de referencia
 	 */
 	@GetMapping("/pedido/{ref}")
 	public Pedido get(@PathVariable long ref){
@@ -115,9 +114,8 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @return
+	 * Metodo que devuelve una lista de pedidos
+	 * @return Lista de pedidos
 	 */
 	@GetMapping("/pedido")
 	public List<Pedido> getPedidos(){
@@ -125,9 +123,9 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @return
+	 * Metodo para obtener todas las lineas de un pedido 
+	 * @param ref Numero de referencia del pedido
+	 * @return Lista de lineas de pedido
 	 */
 	@GetMapping("/pedido/{ref}/lineaPedido")
 	public List<ProductoPedido> getLineasPedido(@PathVariable long ref){
@@ -139,10 +137,10 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @param id
-	 * @return
+	 * Metodo para obtener una linea de pedido mediante su id
+	 * @param ref Numero de referencia del pedido
+	 * @param id Id de la linea de pedido
+	 * @return La linea de pedido obtenida
 	 */
 	@GetMapping("/pedido/{ref}/lineaPedido/{id}")
 	public ProductoPedido getLineaPedido(@PathVariable long ref, @PathVariable long id){
@@ -152,16 +150,16 @@ public class MainController {
 		}
 		ProductoPedido resultado = this.servicioPedido.getLineaPedido(ref,id);
 		if (resultado == null) {
-			throw new PedidoNotFoundException(ref);
+			throw new LineaPedidoNotFoundException(id);
 		}
 		return resultado;
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @param linea
-	 * @return
+	 * Metodo para añadir una linea de pedido
+	 * @param ref Numero de referencia del pedido
+	 * @param linea Linea de pedido que se va a añadir
+	 * @return La linea de pedido añadida
 	 */
 	@PostMapping("/pedido/{ref}/lineaPedido")
 	public ProductoPedido addLineaPedido(@PathVariable long ref, @RequestBody ProductoPedido linea){
@@ -169,10 +167,10 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @param id
-	 * @return
+	 * Metodo para borrar una linea de pedido
+	 * @param ref Numero de referencia del pedido
+	 * @param id id de la linea de pedido que se va a borrar
+	 * @return La linea borrada
 	 */
 	@DeleteMapping("/pedido/{ref}/lineaPedido/{id}")
 	public ProductoPedido deleteLineaPedido(@PathVariable long ref, @PathVariable long id) {
@@ -189,11 +187,11 @@ public class MainController {
 	}
 	
 	/**
-	 * 
-	 * @param ref
-	 * @param linea
-	 * @param id
-	 * @return
+	 * Metodo para modificar una linea de pedido
+	 * @param ref Numero de referencia del pedido
+	 * @param linea La nueva linea modificada
+	 * @param id El id de la linea que se va a modificar
+	 * @return La linea modificada
 	 */
 	@PutMapping("/pedido/{ref}/lineaPedido/{id}")
 	public ProductoPedido editLineaPedido(@PathVariable long ref, @RequestBody ProductoPedido linea, @PathVariable long id) {

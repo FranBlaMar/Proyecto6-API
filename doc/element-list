@@ -1,0 +1,7 @@
+com.example.demo
+com.example.demo.controller
+com.example.demo.error
+com.example.demo.model
+com.example.demo.repository
+com.example.demo.service
+com.example.demo.utiles
